@@ -1,4 +1,5 @@
-[jquery-serializeObject]
+jquery-serializeObject
+======================
 
 Serializes a form into a Javascript Object.
 
