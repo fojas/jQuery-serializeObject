@@ -145,3 +145,59 @@ describe("jQuery.deserializeObject",function(){
   });
 });
 
+describe("jQuery.applySerializedObject", function(){
+  var $ = jQuery;
+  describe("with a simple form", function(){
+    beforeEach(function(){
+      setFixtures('<form id="form-fixture""><input name="banana_stand" /><textarea name="bluth_co"></textarea></form>')
+    });
+    it("should put values in form",function(){
+      $.applySerializedObject($('#form-fixture'),{banana_stand:"money",bluth_co:"chicken dance"})
+      expect($('#form-fixture').find('[name=banana_stand]').val()).toBe("money");
+      expect($('#form-fixture').find('[name=bluth_co]').val()).toBe("chicken dance");
+    });
+  });
+
+  describe("a form with nested attributes", function(){
+    beforeEach(function(){
+      setFixtures('<form id="form-fixture""><input name="banana_stand[]" /><textarea name="bluth_co[p]"></textarea></form>')
+    });
+    it("should put values in form",function(){
+      $.applySerializedObject($('#form-fixture'),{banana_stand:["money"],bluth_co:{p:"chicken dance"}})
+      expect($('#form-fixture').find("[name='banana_stand[]']").val()).toBe("money");
+      expect($('#form-fixture').find("[name='bluth_co[p]']").val()).toBe("chicken dance");
+    });
+  });
+
+  describe("with a form with a checkbox",function(){
+    beforeEach(function(){
+      setFixtures('<form id="form-fixture""><input type="checkbox" checked="checked" name="banana_stand" /><input type="checkbox" name="bluth_co" value="chicken dance" /></form>')
+    });
+   
+    it("should check a checkbox",function(){
+      $.applySerializedObject($('#form-fixture'),{bluth_co:"chicken dance"})
+      expect($('#form-fixture').find('[name=bluth_co]')).toBeChecked()
+    });
+
+    it("should uncheck a checkbox", function(){
+      $.applySerializedObject($('#form-fixture'),{bluth_co:"chicken dance"})
+      expect($('#form-fixture').find('[name=banana_stand]')).not.toBeChecked();
+    });
+  });
+
+  describe("with a form with a radio",function(){
+    beforeEach(function(){
+      setFixtures('<form id="form-fixture""><input type="radio" checked="checked" name="bluth_co" value="corn baller" /><input type="radio" name="bluth_co" value="chicken dance" /></form>')
+    });
+   
+    it("should check a radio",function(){
+      $.applySerializedObject($('#form-fixture'),{bluth_co:"chicken dance"})
+      expect($('#form-fixture').find('[value="chicken dance"]')).toBeChecked()
+    });
+
+    it("should uncheck a radio", function(){
+      $.applySerializedObject($('#form-fixture'),{bluth_co:"chicken dance"})
+      expect($('#form-fixture').find('[value="corn baller"]')).not.toBeChecked();
+    });
+  });
+});

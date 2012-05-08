@@ -61,9 +61,46 @@ $.deserializeObject = function deserializeObject(json,arr,prefix){
   return arr;
 }
 
+var check = function(){
+  // older versions of jQuery do not have prop
+  var propExists = !!$.fn.prop;
+  return function(obj,checked){
+    if(propExists) obj.prop('checked',checked);
+    else obj.attr('checked', (checked ? 'checked' : null ));
+  };
+}();
+
+$.applySerializedArray = function(form,obj){
+  var $form = $(form).find('input,select,textarea'), el;
+  check($form.filter(':checked'),false)
+  for(var i = obj.length;i--;){
+    el = $form.filter("[name='"+obj[i].name+"']");
+    if(el.filter(':checkbox').length){
+      if(el.val() == obj[i].value) check(el.filter(':checkbox'),true);
+    }else if(el.filter(':radio').length){
+      check(el.filter("[value='"+obj[i].value+"']"),true)
+    } else {
+      el.val(obj[i].value);
+    }
+  }
+};
+
+$.applySerializedObject = function(form, obj){
+  $.applySerializedArray(form,$.deserializeObject(obj));
+};
+
 $.fn.serializeObject = $.fn.serializeObject || function(){
   return $.serializeObject(this.serializeArray());
 };
 
+$.fn.applySerializedObject = function(obj){
+  $.applySerializedObject(this,obj);
+  return this;
+};
+
+$.fn.applySerializedArray = function(obj){
+  $.applySerializedArray(this,obj);
+  return this;
+};
 
 }(jQuery);
