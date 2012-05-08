@@ -30,7 +30,40 @@ $.serializeObject = function(obj){
   return o;
 };
 
+$.deserializeObject = function deserializeObject(json,arr,prefix){
+  var i,j,thisPrefix,objType;
+  arr = arr || [];
+  if(Object.prototype.toString.call(json) ==='[object Object]'){
+    for(i in json){
+      thisPrefix = prefix ? [prefix,'[',i,']'].join('') : i;
+      if(json.hasOwnProperty(i)){
+        objType = Object.prototype.toString.call(json[i])
+        if(objType === '[object Array]'){
+          for(j = 0,jsonLen = json[i].length;j<jsonLen;j++){
+            deserializeObject(json[i][j],arr,thisPrefix+'[]');
+          }
+        }else if(objType === '[object Object]'){
+            deserializeObject(json[i],arr,thisPrefix);
+        }else {
+          arr.push({
+            name : thisPrefix,
+            value : json[i]
+          });
+        }
+      }
+    }
+  } else {
+    arr.push({
+      name : prefix,
+      value : json
+    });
+  }
+  return arr;
+}
+
 $.fn.serializeObject = $.fn.serializeObject || function(){
   return $.serializeObject(this.serializeArray());
 };
+
+
 }(jQuery);
